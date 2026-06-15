@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== DARK MODE VARIABLES ===== */
+        :root {
+            --bg-page:        #f9fafb;
+            --bg-card:        #ffffff;
+            --bg-modal:       #ffffff;
+            --text-primary:   #1f2937;
+            --text-secondary: #4b5563;
+            --text-muted:     #6b7280;
+            --border:         #d1d5db;
+            --input-bg:       #ffffff;
+            --item-border:    #f3f4f6;
+            --cat-indigo-bg:  #eef2ff;
+            --cat-blue-bg:    #eff6ff;
+            --cat-green-bg:   #f0fdf4;
+        }
+        html.dark {
+            --bg-page:        #111827;
+            --bg-card:        #1f2937;
+            --bg-modal:       #1f2937;
+            --text-primary:   #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-muted:     #9ca3af;
+            --border:         #374151;
+            --input-bg:       #374151;
+            --item-border:    #374151;
+            --cat-indigo-bg:  #1e1b4b;
+            --cat-blue-bg:    #1e3a5f;
+            --cat-green-bg:   #14532d;
+        }
+
+        body         { background-color: var(--bg-page) !important; }
+        .dm-card     { background-color: var(--bg-card) !important; }
+        .dm-modal    { background-color: var(--bg-modal) !important; }
+        .dm-text-p   { color: var(--text-primary) !important; }
+        .dm-text-s   { color: var(--text-secondary) !important; }
+        .dm-text-m   { color: var(--text-muted) !important; }
+        .dm-border   { border-color: var(--border) !important; }
+        .dm-input    { background-color: var(--input-bg) !important; color: var(--text-primary) !important; border-color: var(--border) !important; }
+        .dm-item     { background-color: var(--bg-card) !important; border-color: var(--item-border) !important; }
+        .dm-cat-indigo { background-color: var(--cat-indigo-bg) !important; }
+        .dm-cat-blue   { background-color: var(--cat-blue-bg) !important; }
+        .dm-cat-green  { background-color: var(--cat-green-bg) !important; }
+
+        /* toggle button */
+        #darkToggle {
+            background: none; border: none; cursor: pointer;
+            font-size: 1.2rem; padding: 4px 8px;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            transition: background 0.2s;
+        }
+        #darkToggle:hover { background: rgba(128,128,128,0.15); }
+        /* ================================ */
+
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .category-header { transition: all 0.2s ease; }
+        .category-header:hover { transform: translateX(5px); }
+        .item-card { transition: all 0.2s ease; }
+        .item-card:hover { transform: translateX(3px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .delete-btn:hover, .edit-btn:hover { transform: scale(1.1); }
+        
+        .custom-checkbox {
+            appearance: none; -webkit-appearance: none;
+            width: 20px; height: 20px;
+            border: 2px solid #818cf8;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+        .custom-checkbox:checked {
+            background-color: #6366f1;
+            border-color: #6366f1;
+        }
+        .custom-checkbox:checked::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            color: white;
+            font-size: 12px;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .checked-item {
+            text-decoration: line-through;
+            color: #9ca3af !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <header class="text-center mb-8 relative">
+            <button id="darkToggle" title="Alternar modo escuro/claro" style="position:absolute;right:0;top:0;">
+                <i class="fas fa-moon"></i>
+            </button>
+            <h1 class="text-3xl font-bold text-indigo-700 mb-2">Lista de Compras</h1>
+            <p class="text-gray-600 dm-text-s">Organize suas compras de forma inteligente</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8 dm-card">
+            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                <div class="flex-1">
+                    <label for="itemName" class="block text-sm font-medium text-gray-700 dm-text-s mb-1">Nome do Item</label>
+                    <input type="text" id="itemName" placeholder="Ex: Arroz, Sabão em pó" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dm-input">
+                </div>
+                <div class="flex-1">
+                    <label for="itemCategory" class="block text-sm font-medium text-gray-700 dm-text-s mb-1">Categoria</label>
+                    <select id="itemCategory" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dm-input">
+                        <option value="hortifruiti">Hortifruiti</option>
+                        <option value="acougue-peixaria">Açougue e Peixaria</option>
+                        <option value="laticinios-refrigerados">Laticínios e Refrigerados</option>
+                        <option value="mercearia">Mercearia</option>
+                        <option value="enlatados-conservas">Enlatados e Conservas</option>
+                        <option value="padaria-cafe">Padaria e Café da Manhã</option>
+                        <option value="congelados">Congelados</option>
+                        <option value="limpeza">Limpeza</option>
+                        <option value="higiene-cuidados">Higiene e Cuidados Pessoais</option>
+                        <option value="pet">Pet</option>
+                        <option value="farmacia">Farmácia</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button id="addItemBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md transition flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Adicionar
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800 dm-text-p">Itens da Lista</h2>
+                <div class="flex gap-4">
+                    <button id="exportListBtn" class="text-green-600 hover:text-green-800 text-sm font-medium flex items-center gap-1">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                    <button id="clearCompletedBtn" class="text-gray-500 hover:text-gray-700 text-sm font-medium flex items-center gap-1 dm-text-m">
+                        <i class="fas fa-check-circle"></i> Limpar Concluídos
+                    </button>
+                    <button id="clearAllBtn" class="text-red-500 hover:text-red-700 text-sm font-medium flex items-center gap-1">
+                        <i class="fas fa-trash-alt"></i> Limpar Tudo
+                    </button>
+                </div>
+            </div>
+
+            <div id="shoppingList" class="space-y-6">
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-green-50 px-4 py-3 rounded-md cursor-pointer dm-cat-green" onclick="toggleCategory('hortifruiti')">
+                        <h3 class="font-medium text-green-700 flex items-center gap-2"><i class="fas fa-apple-alt"></i> Hortifruiti</h3>
+                        <i class="fas fa-chevron-down text-green-500 transition-transform duration-200" id="hortifruiti-arrow"></i>
+                    </div>
+                    <div id="hortifruiti-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-red-50 px-4 py-3 rounded-md cursor-pointer" style="background-color:#fff1f2;" onclick="toggleCategory('acougue-peixaria')">
+                        <h3 class="font-medium text-red-700 flex items-center gap-2"><i class="fas fa-drumstick-bite"></i> Açougue e Peixaria</h3>
+                        <i class="fas fa-chevron-down text-red-500 transition-transform duration-200" id="acougue-peixaria-arrow"></i>
+                    </div>
+                    <div id="acougue-peixaria-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-blue-50 px-4 py-3 rounded-md cursor-pointer dm-cat-blue" onclick="toggleCategory('laticinios-refrigerados')">
+                        <h3 class="font-medium text-blue-700 flex items-center gap-2"><i class="fas fa-cheese"></i> Laticínios e Refrigerados</h3>
+                        <i class="fas fa-chevron-down text-blue-500 transition-transform duration-200" id="laticinios-refrigerados-arrow"></i>
+                    </div>
+                    <div id="laticinios-refrigerados-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-yellow-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('mercearia')">
+                        <h3 class="font-medium text-yellow-700 flex items-center gap-2"><i class="fas fa-store"></i> Mercearia</h3>
+                        <i class="fas fa-chevron-down text-yellow-500 transition-transform duration-200" id="mercearia-arrow"></i>
+                    </div>
+                    <div id="mercearia-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-orange-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('enlatados-conservas')">
+                        <h3 class="font-medium text-orange-700 flex items-center gap-2"><i class="fas fa-box"></i> Enlatados e Conservas</h3>
+                        <i class="fas fa-chevron-down text-orange-500 transition-transform duration-200" id="enlatados-conservas-arrow"></i>
+                    </div>
+                    <div id="enlatados-conservas-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-amber-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('padaria-cafe')">
+                        <h3 class="font-medium text-amber-700 flex items-center gap-2"><i class="fas fa-bread-slice"></i> Padaria e Café da Manhã</h3>
+                        <i class="fas fa-chevron-down text-amber-500 transition-transform duration-200" id="padaria-cafe-arrow"></i>
+                    </div>
+                    <div id="padaria-cafe-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-cyan-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('congelados')">
+                        <h3 class="font-medium text-cyan-700 flex items-center gap-2"><i class="fas fa-snowflake"></i> Congelados</h3>
+                        <i class="fas fa-chevron-down text-cyan-500 transition-transform duration-200" id="congelados-arrow"></i>
+                    </div>
+                    <div id="congelados-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-indigo-50 px-4 py-3 rounded-md cursor-pointer dm-cat-indigo" onclick="toggleCategory('limpeza')">
+                        <h3 class="font-medium text-indigo-700 flex items-center gap-2"><i class="fas fa-broom"></i> Limpeza</h3>
+                        <i class="fas fa-chevron-down text-indigo-500 transition-transform duration-200" id="limpeza-arrow"></i>
+                    </div>
+                    <div id="limpeza-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-pink-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('higiene-cuidados')">
+                        <h3 class="font-medium text-pink-700 flex items-center gap-2"><i class="fas fa-soap"></i> Higiene e Cuidados Pessoais</h3>
+                        <i class="fas fa-chevron-down text-pink-500 transition-transform duration-200" id="higiene-cuidados-arrow"></i>
+                    </div>
+                    <div id="higiene-cuidados-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-lime-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('pet')">
+                        <h3 class="font-medium text-lime-700 flex items-center gap-2"><i class="fas fa-paw"></i> Pet</h3>
+                        <i class="fas fa-chevron-down text-lime-500 transition-transform duration-200" id="pet-arrow"></i>
+                    </div>
+                    <div id="pet-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+
+                <div class="category-section">
+                    <div class="category-header flex items-center justify-between bg-teal-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('farmacia')">
+                        <h3 class="font-medium text-teal-700 flex items-center gap-2"><i class="fas fa-pills"></i> Farmácia</h3>
+                        <i class="fas fa-chevron-down text-teal-500 transition-transform duration-200" id="farmacia-arrow"></i>
+                    </div>
+                    <div id="farmacia-items" class="mt-2 space-y-2 pl-2 hidden"></div>
+                </div>
+            </div>
+
+            <div id="emptyState" class="text-center py-8 hidden">
+                <i class="fas fa-shopping-basket text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 dm-text-m">Sua lista está vazia. Adicione itens para começar!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de edição (mantido igual) -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md fade-in dm-modal">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 dm-text-p">Editar Item</h3>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 dm-text-m"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label for="editItemName" class="block text-sm font-medium text-gray-700 dm-text-s mb-1">Nome do Item</label>
+                    <input type="text" id="editItemName" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dm-input">
+                </div>
+                <div>
+                    <label for="editItemCategory" class="block text-sm font-medium text-gray-700 dm-text-s mb-1">Categoria</label>
+                    <select id="editItemCategory" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dm-input">
+                        <option value="hortifruiti">Hortifruiti</option>
+                        <option value="acougue-peixaria">Açougue e Peixaria</option>
+                        <option value="laticinios-refrigerados">Laticínios e Refrigerados</option>
+                        <option value="mercearia">Mercearia</option>
+                        <option value="enlatados-conservas">Enlatados e Conservas</option>
+                        <option value="padaria-cafe">Padaria e Café da Manhã</option>
+                        <option value="congelados">Congelados</option>
+                        <option value="limpeza">Limpeza</option>
+                        <option value="higiene-cuidados">Higiene e Cuidados Pessoais</option>
+                        <option value="pet">Pet</option>
+                        <option value="farmacia">Farmácia</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button id="cancelEditBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dm-text-s dm-border">Cancelar</button>
+                    <button id="saveEditBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let shoppingItems = JSON.parse(localStorage.getItem('shoppingItems')) || [];
+        let currentlyEditingId = null;
+
+        const itemNameInput = document.getElementById('itemName');
+        const itemCategorySelect = document.getElementById('itemCategory');
+        const addItemBtn = document.getElementById('addItemBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+        const exportListBtn = document.getElementById('exportListBtn');
+        const editModal = document.getElementById('editModal');
+        const editItemName = document.getElementById('editItemName');
+        const editItemCategory = document.getElementById('editItemCategory');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const saveEditBtn = document.getElementById('saveEditBtn');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderShoppingList();
+            updateEmptyState();
+        });
+
+        exportListBtn.addEventListener('click', () => {
+            if (shoppingItems.length === 0) {
+                alert('A lista está vazia. Não há nada para exportar.');
+                return;
+            }
+
+            const date = new Date().toLocaleDateString('pt-BR');
+            let text = `LISTA DE COMPRAS\n${date}\n\n`;
+
+            const categorias = {
+                'hortifruiti': 'HORTIFRUITI',
+                'acougue-peixaria': 'AÇOUGUE E PEIXARIA',
+                'laticinios-refrigerados': 'LATICÍNIOS E REFRIGERADOS',
+                'mercearia': 'MERCEARIA',
+                'enlatados-conservas': 'ENLATADOS E CONSERVAS',
+                'padaria-cafe': 'PADARIA E CAFÉ DA MANHÃ',
+                'congelados': 'CONGELADOS',
+                'limpeza': 'LIMPEZA',
+                'higiene-cuidados': 'HIGIENE E CUIDADOS PESSOAIS',
+                'pet': 'PET',
+                'farmacia': 'FARMÁCIA'
+            };
+
+            Object.keys(categorias).forEach(cat => {
+                const itens = shoppingItems.filter(item => item.category === cat);
+                if (itens.length > 0) {
+                    text += `${categorias[cat]}\n`;
+                    itens.forEach(item => {
+                        const status = item.checked ? '✅ ' : '⬜ ';
+                        text += `${status}${item.name}\n`;
+                    });
+                    text += '\n';
+                }
+            });
+
+            const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+            const exportFileDefaultName = `lista-de-compras-${new Date().toISOString().slice(0,10)}.txt`;
+
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        });
+
+        addItemBtn.addEventListener('click', () => {
+            const name = itemNameInput.value.trim();
+            const category = itemCategorySelect.value;
+            if (name) {
+                shoppingItems.push({
+                    id: Date.now(),
+                    name,
+                    category,
+                    checked: false,
+                    createdAt: new Date().toISOString()
+                });
+                saveToLocalStorage();
+                renderShoppingList();
+                updateEmptyState();
+                itemNameInput.value = '';
+                itemNameInput.focus();
+                showCategory(category);
+            }
+        });
+
+        clearAllBtn.addEventListener('click', () => {
+            if (shoppingItems.length > 0 && confirm('Tem certeza que deseja limpar toda a lista?')) {
+                shoppingItems = [];
+                saveToLocalStorage();
+                renderShoppingList();
+                updateEmptyState();
+            }
+        });
+
+        clearCompletedBtn.addEventListener('click', () => {
+            if (shoppingItems.some(i => i.checked) && confirm('Remover itens marcados como comprados?')) {
+                shoppingItems = shoppingItems.filter(item => !item.checked);
+                saveToLocalStorage();
+                renderShoppingList();
+                updateEmptyState();
+            }
+        });
+
+        function renderShoppingList() {
+            document.querySelectorAll('[id$="-items"]').forEach(el => el.innerHTML = '');
+            
+            const byCategory = {
+                'hortifruiti': [],
+                'acougue-peixaria': [],
+                'laticinios-refrigerados': [],
+                'mercearia': [],
+                'enlatados-conservas': [],
+                'padaria-cafe': [],
+                'congelados': [],
+                'limpeza': [],
+                'higiene-cuidados': [],
+                'pet': [],
+                'farmacia': []
+            };
+            shoppingItems.forEach(item => {
+                if (byCategory[item.category]) byCategory[item.category].push(item);
+            });
+
+            Object.keys(byCategory).forEach(category => {
+                const container = document.getElementById(`${category}-items`);
+                if (container) {
+                    byCategory[category].forEach(item => {
+                        container.appendChild(createItemElement(item));
+                    });
+                }
+            });
+        }
+
+        function createItemElement(item) {
+            const div = document.createElement('div');
+            div.className = 'item-card bg-white p-3 rounded-md border border-gray-100 flex justify-between items-center fade-in dm-item';
+            div.dataset.id = item.id;
+
+            const colorMap = {
+                'hortifruiti': 'green',
+                'acougue-peixaria': 'red',
+                'laticinios-refrigerados': 'blue',
+                'mercearia': 'yellow',
+                'enlatados-conservas': 'orange',
+                'padaria-cafe': 'amber',
+                'congelados': 'cyan',
+                'limpeza': 'indigo',
+                'higiene-cuidados': 'pink',
+                'pet': 'lime',
+                'farmacia': 'teal'
+            };
+            const color = colorMap[item.category] || 'indigo';
+
+            div.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" ${item.checked ? 'checked' : ''} class="custom-checkbox" id="cb-${item.id}">
+                    <label for="cb-${item.id}" class="cursor-pointer">
+                        <span class="text-gray-800 ${item.checked ? 'checked-item' : ''}">${item.name}</span>
+                    </label>
+                </div>
+                <div class="flex gap-2">
+                    <button class="edit-btn text-gray-500 hover:text-${color}-600" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                    <button class="delete-btn text-gray-500 hover:text-red-600" data-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `;
+
+            div.querySelector('.delete-btn').onclick = () => { deleteItem(item.id); };
+            div.querySelector('.edit-btn').onclick = () => { openEditModal(item); };
+            div.querySelector(`#cb-${item.id}`).onchange = (e) => {
+                const it = shoppingItems.find(i => i.id === item.id);
+                if (it) it.checked = e.target.checked;
+                saveToLocalStorage();
+                renderShoppingList();
+            };
+
+            return div;
+        }
+
+        function deleteItem(id) {
+            shoppingItems = shoppingItems.filter(i => i.id !== id);
+            saveToLocalStorage();
+            renderShoppingList();
+            updateEmptyState();
+        }
+
+        function openEditModal(item) {
+            currentlyEditingId = item.id;
+            editItemName.value = item.name;
+            editItemCategory.value = item.category;
+            editModal.classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            editModal.classList.add('hidden');
+            currentlyEditingId = null;
+        }
+
+        saveEditBtn.onclick = () => {
+            if (!currentlyEditingId) return;
+            const name = editItemName.value.trim();
+            if (name) {
+                const item = shoppingItems.find(i => i.id === currentlyEditingId);
+                if (item) {
+                    item.name = name;
+                    item.category = editItemCategory.value;
+                    saveToLocalStorage();
+                    renderShoppingList();
+                    closeEditModal();
+                }
+            }
+        };
+
+        closeModalBtn.onclick = cancelEditBtn.onclick = closeEditModal;
+
+        function toggleCategory(cat) {
+            const cont = document.getElementById(`${cat}-items`);
+            const arrow = document.getElementById(`${cat}-arrow`);
+            cont.classList.toggle('hidden');
+            arrow.classList.toggle('fa-chevron-down');
+            arrow.classList.toggle('fa-chevron-up');
+        }
+
+        function showCategory(cat) {
+            const cont = document.getElementById(`${cat}-items`);
+            const arrow = document.getElementById(`${cat}-arrow`);
+            cont.classList.remove('hidden');
+            arrow.classList.remove('fa-chevron-down');
+            arrow.classList.add('fa-chevron-up');
+        }
+
+        function updateEmptyState() {
+            const empty = document.getElementById('emptyState');
+            const list = document.getElementById('shoppingList');
+            if (shoppingItems.length === 0) {
+                empty.classList.remove('hidden');
+                list.classList.add('hidden');
+            } else {
+                empty.classList.add('hidden');
+                list.classList.remove('hidden');
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('shoppingItems', JSON.stringify(shoppingItems));
+        }
+
+        itemNameInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') addItemBtn.click();
+        });
+
+        // ===== DARK MODE TOGGLE =====
+        const darkToggle = document.getElementById('darkToggle');
+        const html = document.documentElement;
+
+        function applyTheme(dark) {
+            if (dark) {
+                html.classList.add('dark');
+                darkToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                html.classList.remove('dark');
+                darkToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+            localStorage.setItem('darkMode', dark ? '1' : '0');
+        }
+
+        // Restore saved preference
+        applyTheme(localStorage.getItem('darkMode') === '1');
+
+        darkToggle.addEventListener('click', () => {
+            applyTheme(!html.classList.contains('dark'));
+        });
+        // ============================
+    </script>
+</body>
+</html>
