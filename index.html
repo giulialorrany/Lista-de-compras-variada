@@ -121,7 +121,7 @@
             color: #9ca3af !important;
         }
         body{
-            background-color: rgba(11, 139, 92, 0.226) !important;
+            background-color: rgba(11, 139, 92, 0.158) !important;
         }
     </style>
 </head>
@@ -147,15 +147,12 @@
                     <select id="itemCategory" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dm-input">
                         <option value="hortifruiti">Hortifruiti</option>
                         <option value="acougue-peixaria">Açougue e Peixaria</option>
-                        <option value="laticinios-refrigerados">Laticínios e Refrigerados</option>
+                        <option value="laticinios-refrigerados">Laticínios, Refrigerados e Congelados</option>
                         <option value="mercearia">Mercearia</option>
-                        <option value="enlatados-conservas">Enlatados e Conservas</option>
                         <option value="padaria-cafe">Padaria e Café da Manhã</option>
-                        <option value="congelados">Congelados</option>
                         <option value="limpeza">Limpeza</option>
                         <option value="higiene-cuidados">Higiene e Cuidados Pessoais</option>
                         <option value="pet">Pet</option>
-                        <option value="farmacia">Farmácia</option>
                     </select>
                 </div>
                 <div class="flex items-end">
@@ -199,7 +196,7 @@
 
                 <div class="category-section">
                     <div class="category-header flex items-center justify-between bg-blue-50 px-4 py-3 rounded-md cursor-pointer dm-cat-blue" onclick="toggleCategory('laticinios-refrigerados')">
-                        <h3 class="font-medium text-blue-700 flex items-center gap-2"><i class="fas fa-cheese"></i> Laticínios e Refrigerados</h3>
+                        <h3 class="font-medium text-blue-700 flex items-center gap-2"><i class="fas fa-cheese"></i> Laticínios, Refrigerados e Congelados</h3>
                         <i class="fas fa-chevron-down text-blue-500 transition-transform duration-200" id="laticinios-refrigerados-arrow"></i>
                     </div>
                     <div id="laticinios-refrigerados-items" class="mt-2 space-y-2 pl-2 hidden"></div>
@@ -214,27 +211,11 @@
                 </div>
 
                 <div class="category-section">
-                    <div class="category-header flex items-center justify-between bg-orange-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('enlatados-conservas')">
-                        <h3 class="font-medium text-orange-700 flex items-center gap-2"><i class="fas fa-box"></i> Enlatados e Conservas</h3>
-                        <i class="fas fa-chevron-down text-orange-500 transition-transform duration-200" id="enlatados-conservas-arrow"></i>
-                    </div>
-                    <div id="enlatados-conservas-items" class="mt-2 space-y-2 pl-2 hidden"></div>
-                </div>
-
-                <div class="category-section">
                     <div class="category-header flex items-center justify-between bg-amber-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('padaria-cafe')">
                         <h3 class="font-medium text-amber-700 flex items-center gap-2"><i class="fas fa-bread-slice"></i> Padaria e Café da Manhã</h3>
                         <i class="fas fa-chevron-down text-amber-500 transition-transform duration-200" id="padaria-cafe-arrow"></i>
                     </div>
                     <div id="padaria-cafe-items" class="mt-2 space-y-2 pl-2 hidden"></div>
-                </div>
-
-                <div class="category-section">
-                    <div class="category-header flex items-center justify-between bg-cyan-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('congelados')">
-                        <h3 class="font-medium text-cyan-700 flex items-center gap-2"><i class="fas fa-snowflake"></i> Congelados</h3>
-                        <i class="fas fa-chevron-down text-cyan-500 transition-transform duration-200" id="congelados-arrow"></i>
-                    </div>
-                    <div id="congelados-items" class="mt-2 space-y-2 pl-2 hidden"></div>
                 </div>
 
                 <div class="category-section">
@@ -259,14 +240,6 @@
                         <i class="fas fa-chevron-down text-lime-500 transition-transform duration-200" id="pet-arrow"></i>
                     </div>
                     <div id="pet-items" class="mt-2 space-y-2 pl-2 hidden"></div>
-                </div>
-
-                <div class="category-section">
-                    <div class="category-header flex items-center justify-between bg-teal-50 px-4 py-3 rounded-md cursor-pointer" onclick="toggleCategory('farmacia')">
-                        <h3 class="font-medium text-teal-700 flex items-center gap-2"><i class="fas fa-pills"></i> Farmácia</h3>
-                        <i class="fas fa-chevron-down text-teal-500 transition-transform duration-200" id="farmacia-arrow"></i>
-                    </div>
-                    <div id="farmacia-items" class="mt-2 space-y-2 pl-2 hidden"></div>
                 </div>
             </div>
 
@@ -294,15 +267,12 @@
                     <select id="editItemCategory" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dm-input">
                         <option value="hortifruiti">Hortifruiti</option>
                         <option value="acougue-peixaria">Açougue e Peixaria</option>
-                        <option value="laticinios-refrigerados">Laticínios e Refrigerados</option>
+                        <option value="laticinios-refrigerados">Laticínios, Refrigerados e Congelados</option>
                         <option value="mercearia">Mercearia</option>
-                        <option value="enlatados-conservas">Enlatados e Conservas</option>
                         <option value="padaria-cafe">Padaria e Café da Manhã</option>
-                        <option value="congelados">Congelados</option>
                         <option value="limpeza">Limpeza</option>
                         <option value="higiene-cuidados">Higiene e Cuidados Pessoais</option>
                         <option value="pet">Pet</option>
-                        <option value="farmacia">Farmácia</option>
                     </select>
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
@@ -347,15 +317,12 @@
             const categorias = {
                 'hortifruiti': 'HORTIFRUITI',
                 'acougue-peixaria': 'AÇOUGUE E PEIXARIA',
-                'laticinios-refrigerados': 'LATICÍNIOS E REFRIGERADOS',
+                'laticinios-refrigerados': 'LATICÍNIOS, REFRIGERADOS E CONGELADOS',
                 'mercearia': 'MERCEARIA',
-                'enlatados-conservas': 'ENLATADOS E CONSERVAS',
                 'padaria-cafe': 'PADARIA E CAFÉ DA MANHÃ',
-                'congelados': 'CONGELADOS',
                 'limpeza': 'LIMPEZA',
                 'higiene-cuidados': 'HIGIENE E CUIDADOS PESSOAIS',
-                'pet': 'PET',
-                'farmacia': 'FARMÁCIA'
+                'pet': 'PET'
             };
 
             Object.keys(categorias).forEach(cat => {
@@ -425,13 +392,10 @@
                 'acougue-peixaria': [],
                 'laticinios-refrigerados': [],
                 'mercearia': [],
-                'enlatados-conservas': [],
                 'padaria-cafe': [],
-                'congelados': [],
                 'limpeza': [],
                 'higiene-cuidados': [],
-                'pet': [],
-                'farmacia': []
+                'pet': []
             };
             shoppingItems.forEach(item => {
                 if (byCategory[item.category]) byCategory[item.category].push(item);
@@ -457,13 +421,10 @@
                 'acougue-peixaria': 'red',
                 'laticinios-refrigerados': 'blue',
                 'mercearia': 'yellow',
-                'enlatados-conservas': 'orange',
                 'padaria-cafe': 'amber',
-                'congelados': 'cyan',
                 'limpeza': 'brand',
                 'higiene-cuidados': 'pink',
-                'pet': 'lime',
-                'farmacia': 'teal'
+                'pet': 'lime'
             };
             const color = colorMap[item.category] || 'brand';
 
